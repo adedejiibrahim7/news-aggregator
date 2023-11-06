@@ -12,7 +12,6 @@ class SearchNewsController extends Controller
         $searchFields = [ 'body', 'author', 'source'];
 
         $news = Article::when($request->has('q') && !empty($request->q), function ($query) use ($searchFields, $request){
-//            $query->where('title', 'like', "%{$request->q}%");
             foreach ($searchFields as $field){
                 $query->orWhere($field, 'like', "%{$request->q}%");
             }

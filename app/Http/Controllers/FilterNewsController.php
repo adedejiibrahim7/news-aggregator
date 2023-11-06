@@ -9,12 +9,20 @@ class FilterNewsController extends Controller
 {
     public function __invoke(Request $request): \Illuminate\Http\JsonResponse
     {
-        $articles = Article::when($request->has('date') && !empty($request->date), function ($query) use($request){
-            return $query->whereDate('published_at', $request->date);
-        })->when($request->has('category') && !empty($request->category), function ($query) use($request) {
-            return $query->where('category', 'like', "%{$request->category}%");
-        })->when($request->has('source') && !empty($request->source), function ($query) use($request){
-            return $query->where('source', 'like', "%{$request->source}%");
+        $articles = Article::when($request->filled('date') || $request->filled('category') || $request->filled('source'), function ($query) use($request){
+            $searchableFields = ['date' => 'published_at', 'category', 'source'];
+
+            foreach ($searchableFields as $param => $column) {
+                if ($request->filled($param)) {
+                    $value = $request->input($param);
+
+                    if ($param === 'date') {
+                        $query->whereDate($column, $value);
+                    } else {
+                        $query->where($column, 'like', "%{$value}%");
+                    }
+                }
+            }
         })->paginate($this->pageSize);
 
         return successResponse($articles);

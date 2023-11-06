@@ -7,28 +7,20 @@ use Illuminate\Http\Request;
 
 class NewsByPrefrencesController extends Controller
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): \Illuminate\Http\JsonResponse
     {
 
-        $news = Article::when($request->has('authors') && !empty($request->authors), function ($query) use ($request){
-                $authors = explode(',', $request->authors);
+        $news = Article::when($request->has('authors') || $request->has('categories') || $request->has('sources'), function ($query) use ($request){
+                $searchableColumns = ['author', 'category', 'source'];
 
-                foreach ($authors as $author){
-                    $query->Orwhere('author', 'like', "%{$author}%");
-                }
-            })
-            ->when($request->has('authors') && !empty($request->authors), function ($query) use ($request){
-                $categories = explode(',', $request->categories);
+                foreach ($searchableColumns as $column) {
+                    if ($request->has($column) && !empty($request->$column)) {
+                        $values = explode(',', $request->$column);
 
-                foreach ($categories as $category){
-                    $query->Orwhere('author', 'like', "%{$category}%");
-                }
-            })
-            ->when($request->has('sources') && !empty($request->sources), function ($query) use ($request){
-                $sources = explode(',', $request->sources);
-
-                foreach ($sources as $source){
-                    $query->Orwhere('author', 'like', "%{$source}%");
+                        foreach ($values as $value) {
+                            $query->orWhere($column, 'like', "%{$value}%");
+                        }
+                    }
                 }
             })
             ->paginate($this->pageSize);

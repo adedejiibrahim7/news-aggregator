@@ -15,13 +15,12 @@ class NYTimesService
         $yesterday = Carbon::now()->subDay()->toDateString();
 
 
-        $req = Http::withToken($api_key)->get($base_url."/search/v2/articlesearch.json?q= &fq=pub_date:{$yesterday}&api-key={$api_key}");
+        $req = Http::get($base_url."/search/v2/articlesearch.json?q= &fq=pub_date:{$yesterday}&api-key={$api_key}");
 
         if($req->successful()){
 
             $data = $req->json();
 
-//            return $data;
 
             $news = collect($data['response']['docs'])->map(function ($article){
                return [
