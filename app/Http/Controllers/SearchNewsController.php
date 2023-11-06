@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\NewsResource;
 use App\Models\Article;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,6 @@ class SearchNewsController extends Controller
             }
         })->paginate($this->pageSize);
 
-        return successResponse($news);
+        return successResponse(NewsResource::collection($news));
     }
 }
