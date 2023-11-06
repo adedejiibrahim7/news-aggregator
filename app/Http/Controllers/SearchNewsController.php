@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class SearchNewsController extends Controller
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): \Illuminate\Http\JsonResponse
     {
         $searchFields = [ 'body', 'author', 'source'];
 
@@ -16,6 +16,8 @@ class SearchNewsController extends Controller
             foreach ($searchFields as $field){
                 $query->orWhere($field, 'like', "%{$request->q}%");
             }
-        })->paginate(25);
+        })->paginate($this->pageSize);
+
+        return successResponse($news);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\FilterNewsController;
+use App\Http\Controllers\NewsByPrefrencesController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\SearchNewsController;
 use Illuminate\Http\Request;
@@ -21,6 +23,8 @@ Route::prefix('v1')->group(function (){
 
    Route::prefix('news')->name('news')->group(function (){
        Route::get('search', SearchNewsController::class);
+       Route::get('filter', FilterNewsController::class);
+       Route::get('preferences', NewsByPrefrencesController::class);
 
    });
 });
