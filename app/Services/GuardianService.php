@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Article;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
@@ -14,24 +15,27 @@ class GuardianService
 
         $yesterday = Carbon::now()->subDay()->toDateString();
 
-        $req = Http::get($base_url."?q= &from-date={$yesterday}&show-fields=body&api-key={$api_key}");
+        $req = Http::get($base_url."?q= &from-date={$yesterday}&show-fields=body,headline,thumbnail,byline&page-size=50&api-key={$api_key}");
 
         if($req->successful()){
             $data = $req->json();
 
-            $news = collect($data['results'])->map(function ($article){
+            $news = collect($data['response']['results'])->map(function ($article){
                 return [
                     'title'          => $article['webTitle'],
                     'url'            => $article['webUrl'],
-                    'description'    => $article['abstract'],
-                    'image_url'      => $article['multimedia'][0]['url'],
-                    'source'         => $article['source'],
-                    'author'         => self::extractAuthor($article['byline']['original']),
-                    'body'           => $article['lead_paragraph'],
+                    'image_url'      => $article['fields']['thumbnail'] ?? null,
+                    'source'         => "Guardian",
+                    'author'         => $article['fields']['byline'] ?? "nill",
+                    'body'           => $article['fields']['body'],
                     'category'       => $article['sectionName'],
                     'published_at'   =>  Carbon::parse($article['webPublicationDate'])->toDateTimeString(),
                 ];
             })->toArray();
+
+            Article::insert($news);
+
+            return $data;
         }
 
     }

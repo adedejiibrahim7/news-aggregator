@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\SearchNewsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,4 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (){
    Route::get('get', [NewsController::class, 'show']);
+
+   Route::prefix('news')->name('news')->group(function (){
+       Route::get('search', SearchNewsController::class);
+
+   });
 });
